@@ -476,13 +476,14 @@ void scatterRay(
 			pathSegment.ray.direction = newDirection;
 			pathSegment.ray.origin = intersect;
 
-			//frenselCoefficient = FrDielectric( glm::dot(normal_bsdf,newDirection), 1.0f, m.indexOfRefraction);
+			frenselCoefficient = FrDielectric( glm::dot(normal_bsdf,newDirection), 1.0f, m.indexOfRefraction);
 
 #ifndef ENABLE_DIR_LIGHTING
 			pathSegment.color *= (frenselCoefficient * m.specular.color / reflecProb); // divide the probability to counter the chance
 #else
 #ifdef ENABLE_MIS_LIGHTING
 			pathSegment.ThroughputColor *= (frenselCoefficient * m.specular.color / reflecProb); // divide the probability to counter the chance
+			
 #endif
 #endif
 		}
@@ -518,6 +519,7 @@ void scatterRay(
 #else
 #ifdef ENABLE_MIS_LIGHTING
 			pathSegment.ThroughputColor *= ((1.f - frenselCoefficient) * m.specular.color / refractProb);  // divide the probability to counter the chance
+			
 #endif
 #endif
 		}

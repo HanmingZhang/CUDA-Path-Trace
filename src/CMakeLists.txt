@@ -1,3 +1,6 @@
+cmake_minimum_required(VERSION 3.20)
+project(src LANGUAGES CXX CUDA)
+
 set(SOURCE_FILES
     "stb.cpp"
     "image.cpp"
@@ -23,7 +26,11 @@ set(SOURCE_FILES
     "bvh.cpp"
     )
 
-cuda_add_library(src
-    ${SOURCE_FILES}
-    OPTIONS -arch=sm_20
-    )
+add_library(src ${SOURCE_FILES})
+
+target_include_directories(src PRIVATE 
+    ${GLEW_INCLUDE_DIR}
+)
+
+target_link_libraries(src PRIVATE 
+    ${GLEW_LIBRARY_DIR}/glew32s)

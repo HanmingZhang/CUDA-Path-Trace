@@ -38,7 +38,7 @@
 //#define RADIXSORT
 
 // Uncommment to enable len persoective camera
-#define LENPERSPECTIVECAMERA
+// #define LENPERSPECTIVECAMERA
 #define LEN_RADIUS 0.2f
 #define FOCAL_LENGTH 10.5f
 // ----------------------------------------------------------------
@@ -80,16 +80,32 @@ __global__ void sendImageToPBO(uchar4* pbo, glm::ivec2 resolution,
         int index = x + (y * resolution.x);
         glm::vec3 pix = image[index];
 
-        glm::ivec3 color;
-        color.x = glm::clamp((int) (pix.x / iter * 255.0), 0, 255);
-        color.y = glm::clamp((int) (pix.y / iter * 255.0), 0, 255);
-        color.z = glm::clamp((int) (pix.z / iter * 255.0), 0, 255);
+        //glm::ivec3 color;
+        //color.x = glm::clamp((int)(pix.x / (float)iter * 255.0f), 0, 255);
+        //color.y = glm::clamp((int)(pix.y / (float)iter * 255.0f), 0, 255);
+        //color.z = glm::clamp((int)(pix.z / (float)iter * 255.0f), 0, 255);
 
-        // Each thread writes one pixel location in the texture (textel)
-        pbo[index].w = 0;
-        pbo[index].x = color.x;
-        pbo[index].y = color.y;
-        pbo[index].z = color.z;
+        //// Each thread writes one pixel location in the texture (textel)
+        //pbo[index].w = 0;
+        //pbo[index].x = (unsigned char)color.x;
+        //pbo[index].y = (unsigned char)color.y;
+        //pbo[index].z = (unsigned char)color.z;
+
+		if (iter == 0)
+		{
+			pbo[index].w = 0;
+			pbo[index].x = 0;
+			pbo[index].y = 0;
+			pbo[index].z = 0;
+		}
+		else
+		{
+			// Each thread writes one pixel location in the texture (textel)
+			pbo[index].w = 0;
+			pbo[index].x = glm::clamp(pix.x / (float)iter * 255.0f, 0.0f, 255.0f);
+			pbo[index].y = glm::clamp(pix.y / (float)iter * 255.0f, 0.0f, 255.0f);
+			pbo[index].z = glm::clamp(pix.z / (float)iter * 255.0f, 0.0f, 255.0f);
+		}
     }
 }
 
@@ -758,9 +774,12 @@ __global__ void finalGather(int nPaths, glm::vec3 * image, PathSegment * iterati
 	{
 		PathSegment iterationPath = iterationPaths[index];
 		glm::vec3 col = iterationPath.color;
-		if (glm::isnan(col.x) || glm::isnan(col.y) || glm::isnan(col.z)) {
-			return;
-		}
+
+		// TODO: Well... we have some nan need to deal with
+		//if (glm::isnan(col.x) || glm::isnan(col.y) || glm::isnan(col.z)) {
+		//	return;
+		//}
+
 		image[iterationPath.pixelIndex] += (col + ambientColor);
 	}
 }
